@@ -18,7 +18,7 @@ library(party) # Pour ctree
 library(rpart.plot) # Pour prp
 library(ROCR)
 library(caret) # Pour la matrice de confusion
-fraud_data <- read.csv("S1/R/Traitement de donnees/Projet/Data_Projet_1.csv", 
+fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) 
 qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar") 
 fraud_data_EA <- fraud_data[1:734,]

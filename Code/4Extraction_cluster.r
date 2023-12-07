@@ -9,7 +9,7 @@ library(C50)
 library(tree)
 library(ROCR)
 library(caret)
-fraud_data <- read.csv("S1/R/Traitement de donnees/Projet/Data_Projet_1.csv", 
+fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                       header = TRUE, sep = ",", dec = ".", stringsAsFactors = TRUE) #StringsAsFactors pour les variables qualitatives
 fraud_data <- subset(fraud_data, select=-c(customer_id, claim_id))
 fraud_data$total_policy_claims <- factor(as.factor(fraud_data$total_policy_claims), ordered=TRUE)
@@ -36,7 +36,7 @@ qplot(claim_amount, km4$cluster, data=fraud_data, color=fraud_data$fraudulent) +
 qplot(total_policy_claims, km4$cluster, data=fraud_data, color=fraud_data$fraudulent) + geom_jitter(width = 0.2, height = 0.2)
 
 # Prediction avec les clusters sans réequilibrage
-fraud_data <- read.csv("S1/R/Traitement de donnees/Projet/Data_Projet_1.csv", 
+fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                       header = TRUE, sep = ",", dec = ".", stringsAsFactors = TRUE) #StringsAsFactors pour les variables qualitatives
 fraud_data <- subset(fraud_data, select=-c(customer_id, claim_id))
 # Les variables ordinales devront être ordonnées, ici les variables ordinales sont : age, days_to_incident, claim_amount, total_policy_claims

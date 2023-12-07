@@ -1,7 +1,7 @@
 #----------------------------#
 #  TESTS DE SIGNIFICATIVITE  #
 #----------------------------#
-fraud_data <- read.csv("S1/R/Traitement de donnees/Projet/Data_Projet_1.csv", 
+fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) #StringsAsFactors pour les variables qualitatives
 
 fraud_data <- subset(fraud_data, select=-c(customer_id,claim_id))
