@@ -67,6 +67,7 @@ plot(ROC("tree"), col = "blue", add = TRUE)
 #plot(roc_perf4, col = "blue", add = TRUE)
 legend(0.5, 0.5, legend=c("rpart", "rpart", "C5.0", "C5.0", "tree", "ctree"), col=c("green", "green", "red", "red", "blue", "blue"), lty=1:3, cex=0.8)
 title(main="Courbes ROC")
+print("Courbes ROC")
 
 #---------#
 #   AUC   #
