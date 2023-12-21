@@ -1,15 +1,6 @@
 #-------------------------#
 #  Chargement de données  #
 #-------------------------#
-# On va tester httpgd avec un histogramme de la loi normale
-# library(httpgd)
-# hgd() # Pour ouvrir une fenêtre httpgd locale
-# hgd_browse() # Pour initialiser 
-# hist(rnorm(1000)) # Plot test
-# hist(rnorm(50)) # Plot test
-# dev.off()  Pour arrêter le plot dans la fenêtre locale
-# Pour arrêter d'utiliser httpgd, il faut utiliser la commande suivante
-# httpgd.stop()
 library(ggplot2)
 library(rpart)
 library(C50)
@@ -18,6 +9,9 @@ library(party) # Pour ctree
 library(rpart.plot) # Pour prp
 library(ROCR)
 library(caret) # Pour la matrice de confusion
+library(CORElearn)
+library(entropy)
+library(ROSE)
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) 
 qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar") 

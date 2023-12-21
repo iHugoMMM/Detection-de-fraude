@@ -6,6 +6,7 @@ fraud_data <- read.csv("Donnees/Data_Projet_1.csv",
 
 fraud_data <- subset(fraud_data, select=-c(customer_id,claim_id))
 View(fraud_data)
+
 #-------------------------------#
 #  TEST CHI2 VAR CATEGORIELLES  #
 #-------------------------------#
@@ -16,7 +17,7 @@ fisher <- function(test){
   return (fisher.test(test, fraud_data$fraudulent)[1])
 }
 pvchi2_table <- function() {
-  variable_names <- c("gender", "incident_cause", "claim_area", "police_report", "claim_type", "fraudulent")
+  variable_names <- c("gender", "incident_cause", "claim_area", "police_report", "claim_type")
   p_values <- sapply(variable_names, function(var) chi2(fraud_data[[var]]))
 
   # Convertir la liste en vecteur
@@ -39,7 +40,7 @@ pvchi2_table <- function() {
   return(pvalue_vector)
 }
 pvfish_table <- function() {
-  variable_names <- c("gender", "incident_cause", "claim_area", "police_report", "claim_type", "fraudulent")
+  variable_names <- c("gender", "incident_cause", "claim_area", "police_report", "claim_type")
   p_values <- sapply(variable_names, function(var) fisher.test(table(fraud_data[[var]], fraud_data$fraudulent))[1])
 
   # Convertir la liste en vecteur
@@ -61,11 +62,15 @@ pvfish_table <- function() {
   
   return(pvalue_vector)
 }
-chisq.test(fraud_data$gender, fraud_data$fraudulent)
-chi2(fraud_data$gender)
 pvchi2_table()
 pvfish_table()
-
+"pvchi2_table()
+ police_report     claim_type     claim_area         gender incident_cause (pas l'air très utile mais on compare)
+  0.0000337742   0.0052221436   0.4750560347   0.5123374414   0.8852211944 
+> pvfish_table()
+ police_report     claim_type         gender     claim_area incident_cause 
+  8.821351e-06   3.680532e-03   4.750903e-01   4.829364e-01   8.839457e-01"
+  
 #--------------------------#
 #  FISCHER VARIABLES NUME  #
 #--------------------------#
@@ -83,48 +88,95 @@ kendall <- function(variable){
 }
 psk <- function(variable){
   "return sous la forme : p-value de pearson de la variable, variable, est : ,pearson(variable), même chose pour pearman et kendall"
-  print(paste("p-value de pearson de la variable", variable, "est :", pearson(variable)))
-  print(paste("p-value de spearman de la variable", variable, "est :", spearman(variable)))
-  print(paste("p-value de kendall de la variable", variable, "est :", kendall(variable)))
+  print(paste("Variable testée : ", variable))
+  print(paste("p-value Pearson = ", pearson(variable)))
+  print(paste("p-value Spearman = ", spearman(variable))) 
+  print(paste("p-value Kendall = ", kendall(variable))) 
 }
 psk("age")
+'[1] "p-value Pearson =  0.000183065573093701"
+[1] "p-value Spearman =  0.000177558752583205"
+[1] "p-value Kendall =  0.00018434538924881"'
 psk("days_to_incident")
+'[1] "p-value Pearson =  3.9899884800508e-05"
+[1] "p-value Spearman =  1.81355946546409e-07"
+[1] "p-value Kendall =  2.11595814151737e-07"'
 psk("claim_amount")
+'[1] "p-value Pearson =  0.455960214966064"
+[1] "p-value Spearman =  0.0703230077916243"
+[1] "p-value Kendall =  0.0703407348935491"'
 psk("total_policy_claims")
+'[1] "p-value Pearson =  0.00980647494827477"
+[1] "p-value Spearman =  0.0372912761703214"
+[1] "p-value Kendall =  0.0373492251937505"'
 
-#DERNIER TD
-View(fraud_data)
-Entropy(table(fraud_data$fraudulent))
-attr <- attrEval(fraudulent~., fraud_data, estimator = "GainRatio")
-attr <- sort(attr, decreasing = TRUE)
-attr
-attr2 <- attrEval(fraudulent ~ ., fraud_data, estimator = "Gini")
-attr2 <- sort(attr, decreasing = TRUE)
-attr2
-attr3 <- attrEval(fraudulent ~ ., fraud_data, estimator = "Accuracy")
-attr3 <- sort(attr, decreasing = TRUE)
-attr3
+#-------------------------#
+#  GRAPHIQUE EN MOZAIQUE  #
+#-------------------------#
+fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
+                    header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) #StringsAsFactors pour les variables qualitatives
 
-"Conclusion :
-Variable                Importance
-------------------------------------
-claim_amount            0.2961
-total_policy_claims     0.0622
-days_to_incident        0.0452
-age                     0.0413
-police_report           0.0112
-claim_type              0.0055
-claim_area              0.0010
-gender                  0.0003
-incident_cause          0.0003
-"
-# TEST
+fraud_data <- subset(fraud_data, select=-c(customer_id,claim_id))
+"Mosaic plot de représentation chi2-residuals de toutes les variables par rapport à la classe étudiée fraudulent"
+"Avec gender"
+mosaicplot(table(fraud_data$gender, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+"Incident cause"
+mosaicplot(table(fraud_data$incident_cause, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+"Claim_area"
+mosaicplot(table(fraud_data$claim_area, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+"Police_report"
+mosaicplot(table(fraud_data$police_report, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+"Claim_type"
+mosaicplot(table(fraud_data$claim_type, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+
+"Discretisation supervisée à faire"
+fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
+                    header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) #StringsAsFactors pour les variables qualitatives
+
+fraud_data <- subset(fraud_data, select=-c(customer_id,claim_id))
+"Age"
+fraud_data$age <- cut(fraud_data$age, breaks = 5)
+mosaicplot(table(fraud_data$age, fraud_data$fraudulent), shade = TRUE, main = "age", 
+                 xlab = "age", ylab = "fraudulent", color = TRUE)
+"Days_to_incident"
+fraud_data$days_to_incident <- cut(fraud_data$days_to_incident, breaks = 8)
+mosaicplot(table(fraud_data$days_to_incident, fraud_data$fraudulent), shade = TRUE, main = "days_to_incident", 
+                 xlab = "days_to_incident", ylab = "fraudulent", color = TRUE)
+"Claim_amount"
+fraud_data$claim_amount <- cut(fraud_data$claim_amount, breaks = 10)
+mosaicplot(table(fraud_data$claim_amount, fraud_data$fraudulent), shade = TRUE, main = "claim_amount", 
+                 xlab = "claim_amount", ylab = "fraudulent", color = TRUE)
+"Total_policy_claims"
+fraud_data$total_policy_claims <- cut(fraud_data$total_policy_claims, breaks = 5)
+mosaicplot(table(fraud_data$total_policy_claims, fraud_data$fraudulent), shade = TRUE, main = "total_policy_claims", 
+                 xlab = "total_policy_claims", ylab = "fraudulent", color = TRUE)
+
+"A quel point il va être difficile de crée un arbre de décision : proche de 1 plus compliqué, proche de 0 plus simple"
+entropy(table(fraud_data$fraudulent))
+"attrEval sert pour savoir quelles sont les variables les plus significatives"
+Eval <- function(estimator){
+  attr <- attrEval(fraudulent~., fraud_data, estimator = estimator)
+  attr <- sort(attr, decreasing = TRUE)
+  return(attr)
+}
+"GainRatio"
+Eval("GainRatio")
+"Gini"
+Eval("Gini")
+"Accuracy"
+Eval("Accuracy")
+"Relief"
+Eval("Relief")
+"MDL"
+Eval("MDL")
+
 #-------------------------#
 #  Chargement de données  #
 #-------------------------#
+"Réequilibrage et suppression des variables non significatives"
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) 
-# qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas") 
+qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas") 
 resample <- function(fraud_data){
   resample <- ovun.sample(fraudulent ~ ., data = fraud_data, method = "over", N = 1.539 * length(fraud_data$fraudulent))
   indices <- sample(nrow(resample$data))
@@ -132,14 +184,15 @@ resample <- function(fraud_data){
   return(resample)
 }
 fraud_data_sample <- resample(fraud_data)
-# qplot(fraudulent, data=fraud_data_sample, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas")
-# Nombre de lignes dans fraud_data_sample
+qplot(fraudulent, data=fraud_data_sample, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas")
+"Nombre de lignes dans fraud_data_sample"
 nrow(fraud_data_sample)
-# 2/3 de 1692 pour fraud_data_EA et 1/3 pour fraud_data_ET
+"2/3 de 1692 pour fraud_data_EA et 1/3 pour fraud_data_ET"
 fraud_data_EA <- fraud_data_sample[1:1128,]
 fraud_data_ET <- fraud_data_sample[1129:1692,]
-# On enlève les variables non significatives
-fraud_data_EA <- subset(fraud_data_EA, select=-c(customer_id, claim_id, incident_cause, gender, claim_area, claim_type))
+"On enlève les variables non significatives"
+fraud_data_EA <- subset(fraud_data_EA, select=-c(customer_id, claim_id, claim_area, gender, claim_type))
+View(fraud_data_EA)
 tree1 <- rpart(fraudulent~., fraud_data_EA, parms = list(split = "gini"))
 tree2 <- C5.0(fraudulent~., fraud_data_EA, param = list(split = "gini"))
 tree3 <- tree(fraudulent~., fraud_data_EA)
