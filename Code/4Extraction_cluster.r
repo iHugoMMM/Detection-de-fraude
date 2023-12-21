@@ -9,6 +9,9 @@ library(C50)
 library(tree)
 library(ROCR)
 library(caret)
+# Pourqplot 
+library(ggplot2)
+
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                       header = TRUE, sep = ",", dec = ".", stringsAsFactors = TRUE) #StringsAsFactors pour les variables qualitatives
 fraud_data <- subset(fraud_data, select=-c(customer_id, claim_id))

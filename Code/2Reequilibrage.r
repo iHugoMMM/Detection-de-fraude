@@ -1,6 +1,7 @@
 #-------------------------#
 #  Chargement de données  #
 #-------------------------#
+library(ROSE)
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) 
 qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas") 
@@ -12,8 +13,11 @@ resample <- function(fraud_data){
 }
 fraud_data_sample <- resample(fraud_data)
 qplot(fraudulent, data=fraud_data_sample, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas")
-fraud_data_EA <- fraud_data_sample[1:734,]
-fraud_data_ET <- fraud_data_sample[735:1100,]
+# Nombre de lignes dans fraud_data_sample
+nrow(fraud_data_sample)
+# 2/3 de 1692 pour fraud_data_EA et 1/3 pour fraud_data_ET
+fraud_data_EA <- fraud_data_sample[1:1128,]
+fraud_data_ET <- fraud_data_sample[1129:1692,]
 fraud_data_EA <- subset(fraud_data_EA, select=-c(customer_id, claim_id))
 tree1 <- rpart(fraudulent~., fraud_data_EA, parms = list(split = "gini"))
 tree2 <- C5.0(fraudulent~., fraud_data_EA, param = list(split = "gini"))
@@ -72,3 +76,6 @@ MC <- function(type){
 MC("rpart")
 MC("C5.0")
 MC("tree")
+
+# On vide le global environment
+rm(list=ls())

@@ -2,14 +2,14 @@
 #  Chargement de données  #
 #-------------------------#
 # On va tester httpgd avec un histogramme de la loi normale
-library(httpgd)
-hgd() # Pour ouvrir une fenêtre httpgd locale
-hgd_browse() # Pour initialiser 
-hist(rnorm(1000)) # Plot test
-hist(rnorm(50)) # Plot test
-dev.off() # Pour arrêter le plot dans la fenêtre locale
+# library(httpgd)
+# hgd() # Pour ouvrir une fenêtre httpgd locale
+# hgd_browse() # Pour initialiser 
+# hist(rnorm(1000)) # Plot test
+# hist(rnorm(50)) # Plot test
+# dev.off()  Pour arrêter le plot dans la fenêtre locale
 # Pour arrêter d'utiliser httpgd, il faut utiliser la commande suivante
-httpgd.stop()
+# httpgd.stop()
 library(ggplot2)
 library(rpart)
 library(C50)
@@ -67,7 +67,6 @@ plot(ROC("tree"), col = "blue", add = TRUE)
 #plot(roc_perf4, col = "blue", add = TRUE)
 legend(0.5, 0.5, legend=c("rpart", "rpart", "C5.0", "C5.0", "tree", "ctree"), col=c("green", "green", "red", "red", "blue", "blue"), lty=1:3, cex=0.8)
 title(main="Courbes ROC")
-print("Courbes ROC")
 
 #---------#
 #   AUC   #
@@ -117,3 +116,6 @@ MC <- function(type){
 MC("rpart")
 MC("C5.0")
 MC("tree")
+
+# On vide le global environment
+rm(list=ls())
