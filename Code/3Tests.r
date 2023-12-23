@@ -6,6 +6,14 @@ fraud_data <- read.csv("Donnees/Data_Projet_1.csv",
 
 fraud_data <- subset(fraud_data, select=-c(customer_id,claim_id))
 View(fraud_data)
+resample <- function(fraud_data){
+  resample <- ovun.sample(fraudulent ~ ., data = fraud_data, method = "over", N = 1.539 * length(fraud_data$fraudulent))
+  indices <- sample(nrow(resample$data))
+  resample <- resample$data[indices,]
+  return(resample)
+}
+fraud_data <- resample(fraud_data)
+qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas")
 
 #-------------------------------#
 #  TEST CHI2 VAR CATEGORIELLES  #
@@ -113,10 +121,6 @@ psk("total_policy_claims")
 #-------------------------#
 #  GRAPHIQUE EN MOZAIQUE  #
 #-------------------------#
-fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
-                    header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) #StringsAsFactors pour les variables qualitatives
-
-fraud_data <- subset(fraud_data, select=-c(customer_id,claim_id))
 "Mosaic plot de représentation chi2-residuals de toutes les variables par rapport à la classe étudiée fraudulent"
 "Avec gender"
 mosaicplot(table(fraud_data$gender, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
@@ -130,10 +134,6 @@ mosaicplot(table(fraud_data$police_report, fraud_data$fraudulent), shade = TRUE,
 mosaicplot(table(fraud_data$claim_type, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
 
 "Discretisation supervisée à faire"
-fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
-                    header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) #StringsAsFactors pour les variables qualitatives
-
-fraud_data <- subset(fraud_data, select=-c(customer_id,claim_id))
 "Age"
 fraud_data$age <- cut(fraud_data$age, breaks = 5)
 mosaicplot(table(fraud_data$age, fraud_data$fraudulent), shade = TRUE, main = "age", 
@@ -191,7 +191,7 @@ nrow(fraud_data_sample)
 fraud_data_EA <- fraud_data_sample[1:1128,]
 fraud_data_ET <- fraud_data_sample[1129:1692,]
 "On enlève les variables non significatives"
-fraud_data_EA <- subset(fraud_data_EA, select=-c(customer_id, claim_id, claim_area, gender, claim_type))
+fraud_data_EA <- subset(fraud_data_EA, select=-c(customer_id, claim_id, claim_area, gender, incident_cause))
 View(fraud_data_EA)
 tree1 <- rpart(fraudulent~., fraud_data_EA, parms = list(split = "gini"))
 tree2 <- C5.0(fraudulent~., fraud_data_EA, param = list(split = "gini"))
@@ -251,5 +251,5 @@ MC("rpart")
 MC("C5.0")
 MC("tree")
 
-# On vide le global environment
+"On vide le global environment"
 rm(list=ls())

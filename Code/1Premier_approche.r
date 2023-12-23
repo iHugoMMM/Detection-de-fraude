@@ -4,20 +4,21 @@
 library(ggplot2)
 library(rpart)
 library(C50)
-library(tree) # Pour tree
-library(party) # Pour ctree
-library(rpart.plot) # Pour prp
+library(tree) 
+library(party) 
+library(rpart.plot) 
 library(ROCR)
-library(caret) # Pour la matrice de confusion
+library(caret) 
 library(CORElearn)
 library(entropy)
 library(ROSE)
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) 
 qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar") 
+fraud_data <- subset(fraud_data, select=-c(customer_id, claim_id))
 fraud_data_EA <- fraud_data[1:734,]
 fraud_data_ET <- fraud_data[735:1100,]
-fraud_data_EA <- subset(fraud_data_EA, select=-c(customer_id, claim_id))
+# fraud_data_EA <- subset(fraud_data_EA, select=-c(customer_id, claim_id))
 
 #-------------------------#
 #   Aprentissages arbres  #
@@ -79,15 +80,10 @@ AUC <- function(type){
   roc_perf <- performance(roc_pred,"auc")
   return(paste("Aire de l'arbre", type, "est =", attr(roc_perf, "y.values")))
 }
-# On test avec rpart 
 AUC("rpart")
 AUC("C5.0")
 AUC("tree")
-# [1] "Aire de l'arbre rpart est = 0.630783174720883"
-# > AUC("C5.0")
-# [1] "Aire de l'arbre C5.0 est = 0.646150043257941"
-# > AUC("tree")
-# [1] "Aire de l'arbre tree est = 0.625406830634862"
+
 #---------------------------#
 #  MESURES D'EVALUATION/MC  #
 #---------------------------#
@@ -106,10 +102,8 @@ MC <- function(type){
   confusion_matrix_tree <- confusionMatrix(pred_tree, pred_reelle)
   return(confusion_matrix_tree)
 }
-# On test avec rpart
 MC("rpart")
 MC("C5.0")
 MC("tree")
 
-# On vide le global environment
 rm(list=ls())
