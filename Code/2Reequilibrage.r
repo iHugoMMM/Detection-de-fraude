@@ -2,7 +2,7 @@
 #  Chargement de données  #
 #-------------------------#
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
-                    header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) 
+                    header = TRUE, sep = ",", dec = ".", stringsAsFactors = T)
 resample <- function(fraud_data){
   resample <- ovun.sample(fraudulent ~ ., data = fraud_data, method = "over", N = 1.539 * length(fraud_data$fraudulent))
   indices <- sample(nrow(resample$data))
@@ -10,7 +10,7 @@ resample <- function(fraud_data){
   return(resample)
 }
 fraud_data <- resample(fraud_data)
-# qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas")
+qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas")
 fraud_data <- subset(fraud_data, select=-c(customer_id, claim_id))
 "2/3 de 1692 pour fraud_data_EA et 1/3 pour fraud_data_ET"
 fraud_data_EA <- fraud_data[1:1128,]

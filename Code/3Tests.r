@@ -117,6 +117,7 @@ psk("total_policy_claims")
 '[1] "p-value Pearson =  0.00980647494827477"
 [1] "p-value Spearman =  0.0372912761703214"
 [1] "p-value Kendall =  0.0373492251937505"'
+"Avec une p-value < 0.05, on rejette l'hypothèse nulle, il y a donc une corrélation entre la variable et la variable cible"
 
 #-------------------------#
 #  GRAPHIQUE EN MOZAIQUE  #
