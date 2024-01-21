@@ -14,6 +14,10 @@ library(entropy)
 library(ROSE) # Pour le reequilibrage des classes 
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) 
+"Nombre de Oui et de Non"
+table(fraud_data$fraudulent)
+"Total : 846 + 254 = 1100
+Rapport : 846/1100 = 0.7690909"
 #Type du variable fraud_data
 str(fraud_data)
 View(fraud_data)
@@ -69,7 +73,7 @@ print(plot(tree2.1, type="simple", main="Arbre C5.0 - Information comme critère
 dev.off()
 png("Graphs/arbre_tree.png")
 print(plot(tree3, main="Arbre tree", col="blue"))
-text(tree3, pretty = 0)  # Ajout de la fonction text pour afficher les informations de l'arbre
+text(tree3, pretty = 0)  
 dev.off()
 
 #---------------#
@@ -79,8 +83,14 @@ ROC <- function(type){
     if(type == "rpart"){
         prob_tree <- predict(tree1, fraud_data_ET, type="prob")
     }
+    else if(type == "rpart1"){
+        prob_tree <- predict(tree1.1, fraud_data_ET, type="prob")
+    }
     else if(type == "C5.0"){
         prob_tree <- predict(tree2, fraud_data_ET, type="prob")
+    }
+    else if(type == "C5.01"){
+        prob_tree <- predict(tree2.1, fraud_data_ET, type="prob")
     }
     else if(type == "tree"){
         prob_tree <- predict(tree3, fraud_data_ET, type="vector")
@@ -90,14 +100,15 @@ ROC <- function(type){
   return(roc_perf)
 }
 plot(ROC("rpart"), col = "green")
-plot(roc_perf1.1, col = "green", add = TRUE)
+plot(ROC("rpart1"), col = "black", add = TRUE)
 plot(ROC("C5.0"), col = "red", add = TRUE)
-plot(roc_perf2.1, col = "red", add = TRUE)
+plot(ROC("C5.01"), col = "yellow", add = TRUE)
 plot(ROC("tree"), col = "blue", add = TRUE)
-plot(roc_perf4, col = "blue", add = TRUE)
-legend(0.5, 0.5, legend=c("rpart", "C5.0", "tree"), col=c("green", "red","blue",), lty=1:3, cex=0.8)
+legend(0.5, 0.5, legend=c("rpart","rpart(info)", "C5.0","C5.0(info)", "tree"), 
+col=c("green","black", "red","yellow","blue"), lty=1:3, cex=0.8)
 title(main="Courbes ROC")
 
+"
 #Sauvegarde
 # Ouvrir le fichier PNG pour sauvegarder l'image
 png("Graphs/graphROC.png")
@@ -105,21 +116,32 @@ png("Graphs/graphROC.png")
 # Courbe ROC pour rpart
 roc_perf_rpart <- ROC("rpart")
 plot(roc_perf_rpart, col = "green", main="Courbes ROC", lty=1)
-legend("bottomright", legend="rpart", col="green", lty=1, cex=0.8)
+# legend("bottomright", legend="rpart", col="green", lty=1, cex=0.8)
+
+# ROC pour rpart(info)
+roc_perf_rpart1 <- ROC("rpart1")
+plot(roc_perf_rpart1, col = "black", add = TRUE)
+# legend("bottomright", legend="rpart(info)", col="black", lty=1, cex=0.8)
 
 # Ajouter la courbe ROC pour C5.0
 roc_perf_C5.0 <- ROC("C5.0")
 plot(roc_perf_C5.0, col = "red", add = TRUE)
-legend("bottomright", legend="C5.0", col="red", lty=1, cex=0.8)
+# legend("bottomright", legend="C5.0", col="red", lty=1, cex=0.8)
+
+# Ajouter la courbe ROC pour C5.0(info)
+roc_perf_C5.01 <- ROC("C5.01")
+plot(roc_perf_C5.01, col = "yellow", add = TRUE)
 
 # Ajouter la courbe ROC pour tree
 roc_perf_tree <- ROC("tree")
 plot(roc_perf_tree, col = "blue", add = TRUE)
-legend("bottomright", legend="tree", col="blue", lty=1, cex=0.8)
+# legend("bottomright", legend="tree", col="blue", lty=1, cex=0.8)
 
+legend(0.5, 0.5, legend=c("rpart","rpart(info)", "C5.0","C5.0(info)", "tree"), 
+col=c("green","black", "red","yellow","blue"), lty=1:3, cex=0.8)
 # Fermer le fichier PNG
 dev.off()
-
+"
 
 #---------#
 #   AUC   #
@@ -131,6 +153,12 @@ AUC <- function(type){
     else if(type == "C5.0"){
         prob_tree <- predict(tree2, fraud_data_ET, type="prob")
     }
+    else if(type == "rpart1"){
+        prob_tree <- predict(tree1.1, fraud_data_ET, type="prob")
+    }
+    else if(type == "C5.1"){
+        prob_tree <- predict(tree2.1, fraud_data_ET, type="prob")
+    }
     else if(type == "tree"){
         prob_tree <- predict(tree3, fraud_data_ET, type="vector")
     }
@@ -138,9 +166,11 @@ AUC <- function(type){
   roc_perf <- performance(roc_pred,"auc")
   return(paste("Aire de l'arbre", type, "est =", attr(roc_perf, "y.values")))
 }
-AUC("rpart")
-AUC("C5.0")
-AUC("tree")
+AUC("rpart") #AUC : 0.630783174720883
+AUC("rpart1") #AUC : 0.608659827792197
+AUC("C5.0") #AUC : 0.646150043257941
+AUC("C5.1") # AUC : 0.646150043257941
+AUC("tree") #AUC : 0.625406830634862
 
 #---------------------------#
 #  MESURES D'EVALUATION/MC  #
@@ -155,27 +185,152 @@ MC <- function(type){
     else if(type == "tree"){
         prob_tree <- predict(tree3, fraud_data_ET, type="class")
     }
+    else if(type == "rpart1"){
+        prob_tree <- predict(tree1.1, fraud_data_ET, type="class")
+    }
+    else if(type == "C5.1"){
+        prob_tree <- predict(tree2.1, fraud_data_ET, type="class")
+    }
   pred_reelle <- as.factor(fraud_data_ET$fraudulent)
   pred_tree <- as.factor(prob_tree)
-  confusion_matrix_tree <- confusionMatrix(pred_tree, pred_reelle)
+  # Avec la classe possitive = "Yes"
+  confusion_matrix_tree <- confusionMatrix(pred_tree, pred_reelle, positive = "Yes")
   return(confusion_matrix_tree)
 }
 MC("rpart")
-"Pour rpart, on a une matrice de confusion :
-    No Yes
-No 263 63
-Yes 16 24
-Ainsi on a :
-Vrais Positifs = 24
-Vrais Négatifs = 263
-Faux Positifs = 63
-Faux Négatifs = 16
-Ainsi on a :
-Rappel (sensibilite) = VP / (VP + FN) = 24 / (24 + 16) = 0.6) VP correctement predits
-Specificite = VN / (VN + FP) = 263 / (263 + 63) = 0.81  VN correctement predits
-Precision = VP / (VP + FP) = 24 / (24 + 63) = 0.28 
-Accuracy = (VP + VN) / (VP + VN + FP + FN) = (24 + 263) / (24 + 263 + 63 + 16) = 0.79"
+"Confusion Matrix and Statistics
+
+          Reference
+Prediction  No Yes
+       No  263  63
+       Yes  16  24
+
+               Accuracy : 0.7842          
+                 95% CI : (0.7384, 0.8252)
+    No Information Rate : 0.7623
+    P-Value [Acc > NIR] : 0.1789
+
+                  Kappa : 0.2684
+
+ Mcnemar's Test P-Value : 2.274e-07
+                                          
+            Sensitivity : 0.27586
+            Specificity : 0.94265
+         Pos Pred Value : 0.60000
+         Neg Pred Value : 0.80675
+             Prevalence : 0.23770
+         Detection Rate : 0.06557
+   Detection Prevalence : 0.10929
+      Balanced Accuracy : 0.60926
+
+       'Positive' Class : Yes"
 MC("C5.0")
+"Confusion Matrix and Statistics
+
+          Reference
+Prediction  No Yes
+       No  262  62
+       Yes  17  25
+
+               Accuracy : 0.7842
+                 95% CI : (0.7384, 0.8252)
+    No Information Rate : 0.7623
+    P-Value [Acc > NIR] : 0.1789
+
+                  Kappa : 0.2754
+
+ Mcnemar's Test P-Value : 7.407e-07
+
+            Sensitivity : 0.28736
+            Specificity : 0.93907
+         Pos Pred Value : 0.59524
+         Neg Pred Value : 0.80864
+             Prevalence : 0.23770
+         Detection Rate : 0.06831
+   Detection Prevalence : 0.11475
+      Balanced Accuracy : 0.61321
+
+       'Positive' Class : Yes"
 MC("tree")
+"Confusion Matrix and Statistics
+
+          Reference
+Prediction  No Yes
+       No  269  76
+       Yes  10  11
+
+               Accuracy : 0.765
+                 95% CI : (0.7182, 0.8075)
+    No Information Rate : 0.7623
+    P-Value [Acc > NIR] : 0.4798
+                                          
+                  Kappa : 0.1226
+
+ Mcnemar's Test P-Value : 2.398e-12
+
+            Sensitivity : 0.12644
+            Specificity : 0.96416
+         Pos Pred Value : 0.52381
+         Neg Pred Value : 0.77971
+             Prevalence : 0.23770
+         Detection Rate : 0.03005
+   Detection Prevalence : 0.05738
+      Balanced Accuracy : 0.54530         
+
+       'Positive' Class : Yes"
+MC("rpart1")
+"Confusion Matrix and Statistics
+
+          Reference
+Prediction  No Yes
+       No  264  65
+       Yes  15  22
+
+               Accuracy : 0.7814
+                 95% CI : (0.7355, 0.8227)
+    No Information Rate : 0.7623
+    P-Value [Acc > NIR] : 0.2135
+                                          
+                  Kappa : 0.2482
+
+ Mcnemar's Test P-Value : 4.293e-08
+
+            Sensitivity : 0.25287
+            Specificity : 0.94624
+         Pos Pred Value : 0.59459
+         Neg Pred Value : 0.80243
+             Prevalence : 0.23770
+         Detection Rate : 0.06011
+   Detection Prevalence : 0.10109
+      Balanced Accuracy : 0.59956
+
+       'Positive' Class : Yes"
+MC("C5.1")
+"Confusion Matrix and Statistics
+
+          Reference
+Prediction  No Yes
+       No  262  62
+       Yes  17  25
+
+               Accuracy : 0.7842
+                 95% CI : (0.7384, 0.8252)
+    No Information Rate : 0.7623
+    P-Value [Acc > NIR] : 0.1789
+
+                  Kappa : 0.2754
+
+ Mcnemar's Test P-Value : 7.407e-07
+
+            Sensitivity : 0.28736
+            Specificity : 0.93907
+         Pos Pred Value : 0.59524
+         Neg Pred Value : 0.80864
+             Prevalence : 0.23770
+         Detection Rate : 0.06831
+   Detection Prevalence : 0.11475
+      Balanced Accuracy : 0.61321
+
+       'Positive' Class : Yes"
 
 rm(list=ls())

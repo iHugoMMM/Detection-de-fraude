@@ -177,7 +177,6 @@ Eval("MDL")
 "Réequilibrage et suppression des variables non significatives"
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) 
-qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas") 
 resample <- function(fraud_data){
   resample <- ovun.sample(fraudulent ~ ., data = fraud_data, method = "over", N = 1.539 * length(fraud_data$fraudulent))
   indices <- sample(nrow(resample$data))
@@ -185,18 +184,28 @@ resample <- function(fraud_data){
   return(resample)
 }
 fraud_data_sample <- resample(fraud_data)
-qplot(fraudulent, data=fraud_data_sample, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas")
-"Nombre de lignes dans fraud_data_sample"
-nrow(fraud_data_sample)
 "2/3 de 1692 pour fraud_data_EA et 1/3 pour fraud_data_ET"
 fraud_data_EA <- fraud_data_sample[1:1128,]
 fraud_data_ET <- fraud_data_sample[1129:1692,]
 "On enlève les variables non significatives"
 fraud_data_EA <- subset(fraud_data_EA, select=-c(customer_id, claim_id, claim_area, gender, incident_cause))
-View(fraud_data_EA)
+"Arbres"
 tree1 <- rpart(fraudulent~., fraud_data_EA, parms = list(split = "gini"))
 tree2 <- C5.0(fraudulent~., fraud_data_EA, param = list(split = "gini"))
 tree3 <- tree(fraudulent~., fraud_data_EA)
+"Sauvegarde dans Graphs\chap3"
+png('Graphs/chap3/plot_tree1.png')
+rpart.plot(tree1, type=4, extra=7, box.col=c("tomato", "darkturquoise")[tree1$frame$yval], main="Arbre rpart")
+dev.off()
+png('Graphs/chap3/plot_tree2.png')
+print(plot(tree2, type="simple", main="Arbre C5.0"))
+dev.off()
+png('Graphs/chap3/plot_tree3.png')
+print(plot(tree3, main="Arbre tree", col="blue"))
+text(tree3, pretty = 0)  
+dev.off()
+
+
 ROC <- function(type){
     if(type == "rpart"){
         prob_tree <- predict(tree1, fraud_data_ET, type="prob")
@@ -216,6 +225,15 @@ plot(ROC("C5.0"), col = "red", add = TRUE)
 plot(ROC("tree"), col = "blue", add = TRUE)
 legend(0.5, 0.5, legend=c("rpart", "C5.0", "tree"), col=c("green", "red", "blue"), lty=1:3, cex=0.8)
 title(main="Courbes ROC")
+"Sauvegarde dans Graphs\chap3"
+png('Graphs/chap3/plot_ROC.png')
+plot(ROC("rpart"), col = "green")
+plot(ROC("C5.0"), col = "red", add = TRUE)
+plot(ROC("tree"), col = "blue", add = TRUE)
+legend(0.5, 0.5, legend=c("rpart", "C5.0", "tree"), col=c("green", "red", "blue"), lty=1:3, cex=0.8)
+title(main="Courbes ROC")
+dev.off()
+
 AUC <- function(type){
     if(type == "rpart"){
         prob_tree <- predict(tree1, fraud_data_ET, type="prob")
@@ -230,9 +248,9 @@ AUC <- function(type){
   roc_perf <- performance(roc_pred,"auc")
   return(paste("Aire de l'arbre", type, "est =", attr(roc_perf, "y.values")))
 }
-AUC("rpart")
-AUC("C5.0")
-AUC("tree")
+AUC("rpart") #AUC : 0.746698943661972
+AUC("C5.0") #AUC : 0.818228118712274
+AUC("tree") #AUC : 0.679564889336016
 MC <- function(type){
     if(type == "rpart"){
         prob_tree <- predict(tree1, fraud_data_ET, type="class")
@@ -245,12 +263,90 @@ MC <- function(type){
     }
   pred_reelle <- as.factor(fraud_data_ET$fraudulent)
   pred_tree <- as.factor(prob_tree)
-  confusion_matrix_tree <- confusionMatrix(pred_tree, pred_reelle)
+  confusion_matrix_tree <- confusionMatrix(pred_tree, pred_reelle, positive = "Yes")
   return(confusion_matrix_tree)
 }
 MC("rpart")
-MC("C5.0")
-MC("tree")
+"Confusion Matrix and Statistics
 
+          Reference
+Prediction  No Yes
+       No  209 104
+       Yes  71 180
+
+               Accuracy : 0.6897
+                 95% CI : (0.6497, 0.7277)
+    No Information Rate : 0.5035
+    P-Value [Acc > NIR] : < 2e-16
+
+                  Kappa : 0.3799
+
+ Mcnemar's Test P-Value : 0.01556
+
+            Sensitivity : 0.6338
+            Specificity : 0.7464
+         Pos Pred Value : 0.7171
+         Neg Pred Value : 0.6677
+             Prevalence : 0.5035
+         Detection Rate : 0.3191
+   Detection Prevalence : 0.4450
+      Balanced Accuracy : 0.6901
+
+       'Positive' Class : Yes"
+MC("C5.0")
+"Confusion Matrix and Statistics
+
+          Reference
+Prediction  No Yes
+       No  223  95
+       Yes  57 189
+
+               Accuracy : 0.7305
+                 95% CI : (0.6918, 0.7667)
+    No Information Rate : 0.5035
+    P-Value [Acc > NIR] : < 2e-16
+
+                  Kappa : 0.4615
+
+ Mcnemar's Test P-Value : 0.00269
+
+            Sensitivity : 0.6655
+            Specificity : 0.7964
+         Pos Pred Value : 0.7683
+         Neg Pred Value : 0.7013
+             Prevalence : 0.5035
+         Detection Rate : 0.3351
+   Detection Prevalence : 0.4362
+      Balanced Accuracy : 0.7310
+
+       'Positive' Class : Yes"
+MC("tree")
+"Confusion Matrix and Statistics
+
+          Reference
+Prediction  No Yes
+       No  235 167
+       Yes  45 117
+
+               Accuracy : 0.6241
+                 95% CI : (0.5827, 0.6642)
+    No Information Rate : 0.5035
+    P-Value [Acc > NIR] : 5.493e-09
+
+                  Kappa : 0.2505
+
+ Mcnemar's Test P-Value : < 2.2e-16
+
+            Sensitivity : 0.4120          
+            Specificity : 0.8393
+         Pos Pred Value : 0.7222
+         Neg Pred Value : 0.5846
+             Prevalence : 0.5035
+         Detection Rate : 0.2074
+   Detection Prevalence : 0.2872
+      Balanced Accuracy : 0.6256
+
+       'Positive' Class : Yes"
+       
 "On vide le global environment"
 rm(list=ls())

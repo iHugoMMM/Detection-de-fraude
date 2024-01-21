@@ -26,15 +26,23 @@ dmatrix <- daisy(fraud_data)
 #---------------------------------#
 km4 <- kmeans(dmatrix, 5)
 table(km4$cluster, fraud_data$fraudulent)
-qplot(km4$cluster, data=fraud_data, fill=fraud_data$fraudulent)
+"    No Yes
+  1 391  38
+  2  91   0
+  3 135  52
+  4 124  39
+  5 105 125"
+"Global"
+qplot(km4$cluster, data=fraud_data, fill=fraudulent, binwidth=0.5)
 "1 : age"
-qplot(age, km4$cluster, data=fraud_data, color=fraud_data$fraudulent)  + geom_jitter(width = 0.2, height = 0.2)
+qplot(age, km4$cluster, data=fraud_data, color=fraudulent)  + geom_jitter(width = 0.2, height = 0.2)
 "2 : days_to_incident"
-qplot(days_to_incident, km4$cluster, data=fraud_data, color=fraud_data$fraudulent) + geom_jitter(width = 0.2, height = 0.2)
+qplot(days_to_incident, km4$cluster, data=fraud_data, color=fraudulent) + geom_jitter(width = 0.2, height = 0.2)
 "3 : claim_amount # Etant donné que les valeurs des abscisses vont de [2, 14991], on va les afficher par tranche de 1000"
-qplot(claim_amount, km4$cluster, data=fraud_data, color=fraud_data$fraudulent) + geom_jitter(width = 0.2, height = 0.2)
+qplot(claim_amount, km4$cluster, data=fraud_data, color=fraudulent) + geom_jitter(width = 0.2, height = 0.2)
 "4 : total_policy_claims"
-qplot(total_policy_claims, km4$cluster, data=fraud_data, color=fraud_data$fraudulent) + geom_jitter(width = 0.2, height = 0.2)
+qplot(total_policy_claims, km4$cluster, data=fraud_data, color=fraudulent) + geom_jitter(width = 0.2, height = 0.2)
+
 
 #-----------------------#
 # CHARGEMENT DE DONNEES #
@@ -57,8 +65,8 @@ fraud_data$cluster <- kmi$cluster
 fraud_data_EA <- fraud_data[1:1128,]
 fraud_data_ET <- fraud_data[1129:1692,]
 
-sapply(fraud_data_EA, function(x) length(levels(x)))
-fraud_data_EA <- subset(fraud_data_EA, select=-c(claim_area, gender, incident_cause))
+# sapply(fraud_data_EA, function(x) length(levels(x)))
+# fraud_data_EA <- subset(fraud_data_EA, select=-c(claim_area, gender, incident_cause))
 tree1 <- rpart(fraudulent~., fraud_data_EA)
 tree2 <- C5.0(fraudulent~., fraud_data_EA)
 tree3 <- tree(fraudulent~., fraud_data_EA)
@@ -126,7 +134,7 @@ MC <- function(type){
     }
   pred_reelle <- as.factor(fraud_data_ET$fraudulent)
   pred_tree <- as.factor(prob_tree)
-  confusion_matrix_tree <- confusionMatrix(pred_tree, pred_reelle)
+  confusion_matrix_tree <- confusionMatrix(pred_tree, pred_reelle, positive = "Yes")
   return(confusion_matrix_tree)
 }
 MC("rpart")
