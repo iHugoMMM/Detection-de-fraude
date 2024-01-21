@@ -1014,14 +1014,6 @@ Prediction  No Yes
 
        'Positive' Class : Yes"
 
-
-
-
-
-
-
-
-
 rm(list = ls())
 
 #-----------------------#
@@ -1048,5 +1040,3 @@ fraud_pred$customer_id <- 1:nrow(fraud_pred)
 Et ce au format csv, le fichier s'appellera Data_result"
 Data_result <- data.frame(customer_id = fraud_pred$customer_id, fraudulent = fraud_pred$fraudulent, proba_fraudulent = fraud_pred$proba_fraudulent)
 write.csv(Data_result, file = "Donnees/Data_result.csv", row.names = FALSE)
-
-
