@@ -11,13 +11,10 @@ library(ROCR)
 library(caret) 
 library(CORElearn)
 library(entropy)
-library(ROSE) # Pour le reequilibrage des classes 
+library(ROSE) 
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) 
-"Nombre de Oui et de Non"
-table(fraud_data$fraudulent)
-"Total : 846 + 254 = 1100
-Rapport : 846/1100 = 0.7690909"
+
 #Type du variable fraud_data
 str(fraud_data)
 View(fraud_data)
@@ -56,26 +53,6 @@ plot(tree2.1, type="simple", main="Arbre C5.0")
 plot(tree3, main="Arbre tree", col="blue")
 text(tree3, pretty = 0)
 
-#Sauvegarde dans le dossier Graphs en tant que png
-plot_tree1 <- rpart.plot(tree1, type=4, extra=7, box.col=c("tomato", "darkturquoise")[tree1$frame$yval], main="Arbre rpart")
-plot_tree1.1 <- rpart.plot(tree1.1, extra=8, box.col=c("tomato", "darkturquoise")[tree1.1$frame$yval], main="Arbre rpart") # Claim_amount comme plus significatif
-png("Graphs/arbre_rpart.png")
-rpart.plot(tree1, type=4, extra=7, box.col=c("tomato", "darkturquoise")[tree1$frame$yval], main="Arbre rpart")
-dev.off()
-png("Graphs/Arbre_rpart1.png")
-plot_tree1.1
-dev.off()
-png("Graphs/Arbre_C5.0.png")
-print(plot(tree2, type="simple", main="Arbre C5.0"))
-dev.off()
-png("Graphs/arbre_C5.0_information.png")
-print(plot(tree2.1, type="simple", main="Arbre C5.0 - Information comme critère"))
-dev.off()
-png("Graphs/arbre_tree.png")
-print(plot(tree3, main="Arbre tree", col="blue"))
-text(tree3, pretty = 0)  
-dev.off()
-
 #---------------#
 #  Courbes ROC  #
 #---------------#
@@ -107,41 +84,6 @@ plot(ROC("tree"), col = "blue", add = TRUE)
 legend(0.5, 0.5, legend=c("rpart","rpart(info)", "C5.0","C5.0(info)", "tree"), 
 col=c("green","black", "red","yellow","blue"), lty=1:3, cex=0.8)
 title(main="Courbes ROC")
-
-"
-#Sauvegarde
-# Ouvrir le fichier PNG pour sauvegarder l'image
-png("Graphs/graphROC.png")
-
-# Courbe ROC pour rpart
-roc_perf_rpart <- ROC("rpart")
-plot(roc_perf_rpart, col = "green", main="Courbes ROC", lty=1)
-# legend("bottomright", legend="rpart", col="green", lty=1, cex=0.8)
-
-# ROC pour rpart(info)
-roc_perf_rpart1 <- ROC("rpart1")
-plot(roc_perf_rpart1, col = "black", add = TRUE)
-# legend("bottomright", legend="rpart(info)", col="black", lty=1, cex=0.8)
-
-# Ajouter la courbe ROC pour C5.0
-roc_perf_C5.0 <- ROC("C5.0")
-plot(roc_perf_C5.0, col = "red", add = TRUE)
-# legend("bottomright", legend="C5.0", col="red", lty=1, cex=0.8)
-
-# Ajouter la courbe ROC pour C5.0(info)
-roc_perf_C5.01 <- ROC("C5.01")
-plot(roc_perf_C5.01, col = "yellow", add = TRUE)
-
-# Ajouter la courbe ROC pour tree
-roc_perf_tree <- ROC("tree")
-plot(roc_perf_tree, col = "blue", add = TRUE)
-# legend("bottomright", legend="tree", col="blue", lty=1, cex=0.8)
-
-legend(0.5, 0.5, legend=c("rpart","rpart(info)", "C5.0","C5.0(info)", "tree"), 
-col=c("green","black", "red","yellow","blue"), lty=1:3, cex=0.8)
-# Fermer le fichier PNG
-dev.off()
-"
 
 #---------#
 #   AUC   #
@@ -333,4 +275,4 @@ Prediction  No Yes
 
        'Positive' Class : Yes"
 
-rm(list=ls())
+# rm(list=ls())

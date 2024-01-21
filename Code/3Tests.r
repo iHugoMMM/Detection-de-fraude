@@ -3,9 +3,7 @@
 #----------------------------#
 fraud_data <- read.csv("Donnees/Data_Projet_1.csv", 
                     header = TRUE, sep = ",", dec = ".", stringsAsFactors = T) #StringsAsFactors pour les variables qualitatives
-
 fraud_data <- subset(fraud_data, select=-c(customer_id,claim_id))
-View(fraud_data)
 resample <- function(fraud_data){
   resample <- ovun.sample(fraudulent ~ ., data = fraud_data, method = "over", N = 1.539 * length(fraud_data$fraudulent))
   indices <- sample(nrow(resample$data))
@@ -13,8 +11,7 @@ resample <- function(fraud_data){
   return(resample)
 }
 fraud_data <- resample(fraud_data)
-qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas")
-
+fraud_data$total_policy_claims <- as.ordered(fraud_data$total_policy_claims)
 #-------------------------------#
 #  TEST CHI2 VAR CATEGORIELLES  #
 #-------------------------------#
@@ -73,11 +70,11 @@ pvfish_table <- function() {
 pvchi2_table()
 pvfish_table()
 "pvchi2_table()
- police_report     claim_type     claim_area         gender incident_cause (pas l'air très utile mais on compare)
-  0.0000337742   0.0052221436   0.4750560347   0.5123374414   0.8852211944 
+ police_report     claim_type incident_cause         gender     claim_area 
+  2.474865e-10   1.775015e-08   9.940190e-02   1.585209e-01   2.931374e-01
 > pvfish_table()
- police_report     claim_type         gender     claim_area incident_cause 
-  8.821351e-06   3.680532e-03   4.750903e-01   4.829364e-01   8.839457e-01"
+ police_report     claim_type incident_cause         gender     claim_area 
+  1.441902e-10   1.358592e-08   9.969912e-02   1.585007e-01   2.931189e-01"
   
 #--------------------------#
 #  FISCHER VARIABLES NUME  #
@@ -102,13 +99,13 @@ psk <- function(variable){
   print(paste("p-value Kendall = ", kendall(variable))) 
 }
 psk("age")
-'[1] "p-value Pearson =  0.000183065573093701"
-[1] "p-value Spearman =  0.000177558752583205"
-[1] "p-value Kendall =  0.00018434538924881"'
+'[1] "p-value Pearson =  4.61337284270551e-07"
+[1] "p-value Spearman =  2.48938561558996e-07"
+[1] "p-value Kendall =  2.73961583160717e-07"'
 psk("days_to_incident")
-'[1] "p-value Pearson =  3.9899884800508e-05"
-[1] "p-value Spearman =  1.81355946546409e-07"
-[1] "p-value Kendall =  2.11595814151737e-07"'
+'"[1] "p-value Pearson =  1.63154239370855e-06"
+[1] "p-value Spearman =  4.29831904665197e-11"
+[1] "p-value Kendall =  5.59674069164966e-11"'
 psk("claim_amount")
 '[1] "p-value Pearson =  0.455960214966064"
 [1] "p-value Spearman =  0.0703230077916243"
@@ -124,52 +121,75 @@ psk("total_policy_claims")
 #-------------------------#
 "Mosaic plot de représentation chi2-residuals de toutes les variables par rapport à la classe étudiée fraudulent"
 "Avec gender"
-mosaicplot(table(fraud_data$gender, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+mosaicplot(table(fraud_data$gender, fraud_data$fraudulent), shade = TRUE, main = "Gender", xlab = "Gender", ylab = "fraudulent", color = TRUE)
 "Incident cause"
-mosaicplot(table(fraud_data$incident_cause, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+mosaicplot(table(fraud_data$incident_cause, fraud_data$fraudulent), shade = TRUE, main = "Incident Cause", xlab = "Incident Cause", ylab = "fraudulent", color = TRUE)
 "Claim_area"
-mosaicplot(table(fraud_data$claim_area, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+mosaicplot(table(fraud_data$claim_area, fraud_data$fraudulent), shade = TRUE, main = "Claim Area", xlab = "Claim Area", ylab = "fraudulent", color = TRUE)
 "Police_report"
-mosaicplot(table(fraud_data$police_report, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+mosaicplot(table(fraud_data$police_report, fraud_data$fraudulent), shade = TRUE, main = "Police report", xlab = "Police report", ylab = "fraudulent", color = TRUE)
 "Claim_type"
-mosaicplot(table(fraud_data$claim_type, fraud_data$fraudulent), shade = TRUE, main = "age", xlab = "age", ylab = "fraudulent", color = TRUE)
+mosaicplot(table(fraud_data$claim_type, fraud_data$fraudulent), shade = TRUE, main = "Claim Type", xlab = "Claim Type", ylab = "fraudulent", color = TRUE)
 
 "Discretisation supervisée à faire"
 "Age"
 fraud_data$age <- cut(fraud_data$age, breaks = 5)
-mosaicplot(table(fraud_data$age, fraud_data$fraudulent), shade = TRUE, main = "age", 
+mosaicplot(table(fraud_data$age, fraud_data$fraudulent), shade = TRUE, main = "Age", 
                  xlab = "age", ylab = "fraudulent", color = TRUE)
 "Days_to_incident"
 fraud_data$days_to_incident <- cut(fraud_data$days_to_incident, breaks = 8)
-mosaicplot(table(fraud_data$days_to_incident, fraud_data$fraudulent), shade = TRUE, main = "days_to_incident", 
+mosaicplot(table(fraud_data$days_to_incident, fraud_data$fraudulent), shade = TRUE, main = "Days to Incident", 
                  xlab = "days_to_incident", ylab = "fraudulent", color = TRUE)
 "Claim_amount"
 fraud_data$claim_amount <- cut(fraud_data$claim_amount, breaks = 10)
-mosaicplot(table(fraud_data$claim_amount, fraud_data$fraudulent), shade = TRUE, main = "claim_amount", 
+mosaicplot(table(fraud_data$claim_amount, fraud_data$fraudulent), shade = TRUE, main = "Claim Amount", 
                  xlab = "claim_amount", ylab = "fraudulent", color = TRUE)
 "Total_policy_claims"
 fraud_data$total_policy_claims <- cut(fraud_data$total_policy_claims, breaks = 5)
-mosaicplot(table(fraud_data$total_policy_claims, fraud_data$fraudulent), shade = TRUE, main = "total_policy_claims", 
+mosaicplot(table(fraud_data$total_policy_claims, fraud_data$fraudulent), shade = TRUE, main = "Total Policy Claims", 
                  xlab = "total_policy_claims", ylab = "fraudulent", color = TRUE)
 
-"A quel point il va être difficile de crée un arbre de décision : proche de 1 plus compliqué, proche de 0 plus simple"
-entropy(table(fraud_data$fraudulent))
-"attrEval sert pour savoir quelles sont les variables les plus significatives"
 Eval <- function(estimator){
   attr <- attrEval(fraudulent~., fraud_data, estimator = estimator)
   attr <- sort(attr, decreasing = TRUE)
   return(attr)
 }
-"GainRatio"
 Eval("GainRatio")
-"Gini"
+"total_policy_claims       police_report    days_to_incident                 age 
+        0.104655533         0.019078534         0.009190180         0.008606188 
+         claim_type          claim_area      incident_cause              gender
+        0.007791333         0.003102022         0.001044547         0.000363893 
+       claim_amount
+       -1.000000000"
 Eval("Gini")
-"Accuracy"
+"claim_amount       police_report                 age    days_to_incident 
+       0.0303624371        0.0171140163        0.0136374392        0.0120551733
+         claim_type total_policy_claims      incident_cause          claim_area
+       0.0070925484        0.0055454957        0.0016318665        0.0009763576
+             gender 
+       0.0002522038"
 Eval("Accuracy")
-"Relief"
+"claim_amount                 age       police_report    days_to_incident 
+         0.07210402          0.06560284          0.05910165          0.05614657
+         claim_type total_policy_claims      incident_cause          claim_area 
+         0.04314421          0.03546099          0.02127660          0.01300236 
+             gender
+         0.01122931"
 Eval("Relief")
-"MDL"
+"      age    days_to_incident      incident_cause       police_report 
+         0.12529551          0.10283688          0.10224586          0.09929078
+total_policy_claims        claim_amount          claim_type              gender 
+         0.09574468          0.07978723          0.03250591          0.02836879
+         claim_area
+         0.01536643"
 Eval("MDL")
+"       claim_amount       police_report                 age    days_to_incident 
+       0.0382797154        0.0211697834        0.0113500490        0.0067407198
+total_policy_claims          claim_type          claim_area              gender 
+       0.0060765507        0.0059883394       -0.0005329839       -0.0020233076
+     incident_cause
+      -0.0060326374"
+
 
 #-------------------------#
 #  Chargement de données  #
@@ -193,18 +213,6 @@ fraud_data_EA <- subset(fraud_data_EA, select=-c(customer_id, claim_id, claim_ar
 tree1 <- rpart(fraudulent~., fraud_data_EA, parms = list(split = "gini"))
 tree2 <- C5.0(fraudulent~., fraud_data_EA, param = list(split = "gini"))
 tree3 <- tree(fraudulent~., fraud_data_EA)
-"Sauvegarde dans Graphs\chap3"
-png('Graphs/chap3/plot_tree1.png')
-rpart.plot(tree1, type=4, extra=7, box.col=c("tomato", "darkturquoise")[tree1$frame$yval], main="Arbre rpart")
-dev.off()
-png('Graphs/chap3/plot_tree2.png')
-print(plot(tree2, type="simple", main="Arbre C5.0"))
-dev.off()
-png('Graphs/chap3/plot_tree3.png')
-print(plot(tree3, main="Arbre tree", col="blue"))
-text(tree3, pretty = 0)  
-dev.off()
-
 
 ROC <- function(type){
     if(type == "rpart"){
@@ -225,14 +233,6 @@ plot(ROC("C5.0"), col = "red", add = TRUE)
 plot(ROC("tree"), col = "blue", add = TRUE)
 legend(0.5, 0.5, legend=c("rpart", "C5.0", "tree"), col=c("green", "red", "blue"), lty=1:3, cex=0.8)
 title(main="Courbes ROC")
-"Sauvegarde dans Graphs\chap3"
-png('Graphs/chap3/plot_ROC.png')
-plot(ROC("rpart"), col = "green")
-plot(ROC("C5.0"), col = "red", add = TRUE)
-plot(ROC("tree"), col = "blue", add = TRUE)
-legend(0.5, 0.5, legend=c("rpart", "C5.0", "tree"), col=c("green", "red", "blue"), lty=1:3, cex=0.8)
-title(main="Courbes ROC")
-dev.off()
 
 AUC <- function(type){
     if(type == "rpart"){
@@ -266,6 +266,7 @@ MC <- function(type){
   confusion_matrix_tree <- confusionMatrix(pred_tree, pred_reelle, positive = "Yes")
   return(confusion_matrix_tree)
 }
+
 MC("rpart")
 "Confusion Matrix and Statistics
 
@@ -347,6 +348,5 @@ Prediction  No Yes
       Balanced Accuracy : 0.6256
 
        'Positive' Class : Yes"
-       
-"On vide le global environment"
-rm(list=ls())
+
+# rm(list=ls())

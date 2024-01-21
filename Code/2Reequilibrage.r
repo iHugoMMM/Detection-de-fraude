@@ -11,28 +11,13 @@ resample <- function(fraud_data){
 }
 fraud_data <- resample(fraud_data)
 qplot(fraudulent, data=fraud_data, fill=fraudulent, geom="bar", main="Fraudulent", xlab="Fraudulent", ylab="Nombre de cas")
-"Sauvegarde le qplot dans Graphs\chap2"
-"ggsave("Graphs/chap2/qplot_fraudulent.png")"
 fraud_data <- subset(fraud_data, select=-c(customer_id, claim_id))
-"2/3 de 1692 pour fraud_data_EA et 1/3 pour fraud_data_ET"
 fraud_data_EA <- fraud_data[1:1128,]
 fraud_data_ET <- fraud_data[1129:1692,]
 "Arbres"
 tree1 <- rpart(fraudulent~., fraud_data_EA, parms = list(split = "gini"))
 tree2 <- C5.0(fraudulent~., fraud_data_EA, param = list(split = "gini"))
 tree3 <- tree(fraudulent~., fraud_data_EA)
-"Plot arbres"
-"Sauvegarde les plots dans Graphs\chap2"
-png('Graphs/chap2/plot_tree1.png')
-rpart.plot(tree1, type=4, extra=7, box.col=c("tomato", "darkturquoise")[tree1$frame$yval], main="Arbre rpart")
-dev.off()
-png('Graphs/chap2/plot_tree2.png')
-print(plot(tree2, type="simple", main="Arbre C5.0"))
-dev.off()
-png('Graphs/chap2/plot_tree3.png')
-print(plot(tree3, main="Arbre tree", col="blue"))
-text(tree3, pretty = 0)  # Ajout de la fonction text pour afficher les informations de l'arbre
-dev.off()
 "ROC"
 ROC <- function(type){
     if(type == "rpart"){
@@ -53,15 +38,6 @@ plot(ROC("C5.0"), col = "red", add = TRUE)
 plot(ROC("tree"), col = "blue", add = TRUE)
 legend(0.5, 0.5, legend=c("rpart", "C5.0", "tree"), col=c("green", "red", "blue"), lty=1:3, cex=0.8)
 title(main="Courbes ROC")
-"sauvegarde"
-png('Graphs/chap2/plot_ROC.png')
-plot(ROC("rpart"), col = "green")
-plot(ROC("C5.0"), col = "red", add = TRUE)
-plot(ROC("tree"), col = "blue", add = TRUE)
-legend(0.5, 0.5, legend=c("rpart", "C5.0", "tree"), col=c("green", "red", "blue"), lty=1:3, cex=0.8)
-title(main="Courbes ROC")
-dev.off()
-
 
 AUC <- function(type){
     if(type == "rpart"){
@@ -81,9 +57,6 @@ AUC("rpart") #AUC : 0.733895444756495
 AUC("C5.0") #AUC : 0.829943453018148
 AUC("tree") #AUC : 0.665100814830674
 
-"En effet, l'arbre C5.0 est le plus performant avec un AUC de 0.829943453018148.
-Si on le compare à l'AUC obtenu dans la section 1 (qui était de 0.646150043257941),
-on peut remarquer une amélioration, en pourcentage, de 28.4%."
 MC <- function(type){
     if(type == "rpart"){
         prob_tree <- predict(tree1, fraud_data_ET, type="class")
@@ -181,4 +154,4 @@ Prediction  No Yes
 
        'Positive' Class : Yes"
 
-rm(list=ls())
+# rm(list=ls())
